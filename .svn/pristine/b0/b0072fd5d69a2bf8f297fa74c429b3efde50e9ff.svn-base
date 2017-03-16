@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "登录";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="renderer" content="webkit">
+    <title>用户登陆</title>
+    <script src="~/Scripts/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#userName").val(localStorage.getItem("userName"));
+            $("#password").val(localStorage.getItem("password"));
+            if (localStorage.getItem("userName")) {
+                $("#rememberPWD").attr("checked", "checked");
+            }
+            $("#password").keydown(function () {
+                if (event.keyCode == 13) {
+                    UserLogin();
+                }
+            })
+        });
+        function UserLogin() {
+            $("#login").html("登录中");
+            var userName = $("#userName").val();
+            var password = $("#password").val();
+            var remember = 0;
+            if ($("#rememberPWD").is(":checked")) {
+                localStorage.setItem("userName", userName);
+                localStorage.setItem("password", password);
+                remember = 1;
+            } else {
+                localStorage.removeItem("userName");
+                localStorage.removeItem("password");
+            }
+            var role = $('input[name="role"]:checked ').val();
+            $.post("/Account/LoginValidate",
+                {
+                    userName: userName,
+                    password: password,
+                    remember: remember,
+                    role: role
+                }, function (data) {
+                    if (data.length>0) {
+                        if (role == "0") {
+                            window.name = data[0].Name + "管理员";
+                        } else {
+                            window.name = data[0].Name + "老师";
+                        }
+                        localStorage.setItem("ID", data[0].ID);
+                        localStorage.setItem("role", role);
+                        window.location.href = "../Students/StudentsInfo";
+                    } else {
+                        alert("登录失败，用户名或密码不正确！");
+                    }
+                    $("#login").html("安全登陆");
+                })
+        }
+        function showTeacher() {
+            $("#firstView").hide();
+            $("#studentLogin").hide();
+            $("#teacherLogin").show();
+        }
+        function showStudent() {
+            $("#firstView").hide();
+            $("#teacherLogin").hide();
+            $("#studentLogin").show();
+        }
+    </script>
+
+</head>
+<body>
+    <div id='content' class='row-fluid' style="position:absolute;width:100%;height:100%;background-image:url(/Images/Images/jiaoshi2.png);">
+        <div id="studentLogin" style="position:absolute;width:400px;height:280px;margin-top:15%;margin-left:38%;background-color:snow;display:none;" >
+            <div>
+                <h3 style="margin-left:30px;">学生登录</h3>
+            </div>
+            <hr />
+            <p>
+                <span style="width:50px;margin-left: 30px;">用户名：</span>
+                <input type="text" style="width:180px;" placeholder="请输入用户名汉字" />
+            </p>
+            <p>
+                <span style="width:50px;margin-left: 30px;">密&nbsp;&nbsp; 码：</span>
+                <input type="password" style="width:180px;" />
+                <a href="#" style="text-decoration:none;color:#082dfd;">忘记密码</a>
+            </p>
+            <p>
+                <span style="width:50px;margin-left: 30px;">班&nbsp;&nbsp;&nbsp;级：</span>
+                <select id="banJi" style="width:185px;" >
+                    <option>1班</option>
+                </select>
+            </p>
+            <p>
+                <input type="checkbox" style="margin-left: 95px" />
+                <span>记住我</span>
+            </p>
+            <p>
+                <button style="margin-left: 95px;width:185px;text-align:center;height:30px;background-color: #125fe3;color: snow;border: none;border-radius: 15px">登 录</button>
+            </p>
+        </div>
+        <div id="teacherLogin" style="position:absolute;width:400px;height:280px;margin-top:15%;margin-left:38%;background-color:snow;" >
+            <div>
+                <h3 style="margin-left:30px;">教师登录</h3>
+            </div>
+            <hr />
+            <p>
+                <span style="width:50px;margin-left: 30px;">用户名：</span>
+                <input type="text" style="width:180px;" placeholder="请输入用户名汉字" />
+            </p>
+            <p>
+                <span style="width:50px;margin-left: 30px;">密&nbsp;&nbsp; 码：</span>
+                <input type="password" style="width:180px;" />
+                <a href="#" style="text-decoration:none;color:#082dfd;">忘记密码</a>
+            </p>
+            <p>
+                <input type="checkbox" style="margin-left: 95px" />
+                <span>记住我</span>
+            </p>
+            <p>
+                <button style="margin-left: 95px;width:185px;text-align:center;height:30px;background-color: #125fe3;color: snow;border: none;border-radius: 15px">登 录</button>
+            </p>
+        </div>
+        <div id="firstView" style="z-index:1;position:absolute;width:100%;height:100%;background-color: snow;text-align: center;">
+            <span style="text-align:center;font-size: xx-large;">考试数据分析系统</span>
+            <p>
+                <a onclick="showTeacher()" style="color:#082dfd;cursor:pointer">教师入口</a>
+                <a onclick="showStudent()" style="margin-left:50px;color:#082dfd;cursor:pointer">学生入口</a>
+            </p>
+        </div>
+        <!-- 登陆窗口结束-->
+        <!-- 底部开始-->
+        @*<div style="width: 100%; height: 7%; line-height: 50px; text-align: center; bottom: 0px; background-color: #476FFF; position: fixed;">
+            Copyright 学业成就评价服务系统
+        </div>*@
+        <!-- 底部结束-->
+    </div>
+</body>
+</html>
+
